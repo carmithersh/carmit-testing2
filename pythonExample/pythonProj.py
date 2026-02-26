@@ -22,3 +22,4 @@ printme("Hello from JFROG!!");
 printme("I am part of test repo 2 skills for jira!!");
 printme("I am part of test repo 2 skills for jira commit 2!!");
 printme("I am part of test repo 2 skills for jira commit 3!!");
+printme("I am part of test repo 2 skills for jira commit 4!!");
