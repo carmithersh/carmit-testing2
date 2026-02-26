@@ -24,7 +24,7 @@ jobs:
                 JF_URL: https://${{ vars.JF_URL }}/
                 JF_PROJECT: pac-ai-generator
               with:
-                  oidc-provider-name: github-carmit-project-1
+                  oidc-provider-name: github-enterprise-oidc
        
             - name: configure jfrog environment
               run: |
