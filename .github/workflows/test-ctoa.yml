@@ -29,7 +29,22 @@ jobs:
             - name: configure jfrog environment
               run: |
                 jf pip-config --repo-resolve=pac-ai-generator-python-virtual    
-                
+            
+            - name: Sonar scan
+              uses: SonarSource/sonarqube-scan-action@v5
+              continue-on-error: true  # Don't fail build on SonarCloud quality gate issues
+              env:
+                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+              with:
+                args: >
+                  -Dsonar.projectKey=my-evidence-test-org1_evidence-example
+                  -Dsonar.organization=my-evidence-test-org1
+                  -Dsonar.projectBaseDir=.
+                  -Dsonar.sources=.
+                  -Dsonar.inclusions=**/*.go
+                  -Dsonar.java.jdkHome=$JAVA_HOME
+                  -Dsonar.verbose=true
+
             - name: configure environment
               run: |                      
                 python3 -m pip install --upgrade pip setuptools wheel sigstore
@@ -83,6 +98,20 @@ jobs:
                 jf rt bp 
                 #jf build-scan  --format sarif --fail=false 
           
+            - name: Create sonar evidence
+              env:
+                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                SONAR_REPORT_TASK_FILE: ${{ github.workspace }}/examples/sonar-scan/.scannerwork/report-task.txt
+                JFROG_CLI_SIGNING_KEY: ${{ secrets.EVIDENCE_SIGNING_KEY }}
+              run: |
+                # Attach evidence onto docker package using JFrog CLI                
+                jf evd create \
+                --integration sonar \
+                --build-name $GITHUB_WORKFLOW \
+                --build-number "${{ github.run_number }}" \
+                --project "pac-ai-generator" \
+                --key-alias "${{ vars.EVIDENCE_PUBLIC_KEY_ALIAS }}" 
+
             - name: Attest Build Provenance
               uses: actions/attest-build-provenance@v3
               with:
